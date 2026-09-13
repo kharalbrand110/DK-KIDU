@@ -486,23 +486,6 @@ html, body {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.fab {
-  position: fixed;
-  bottom: 22px;
-  right: 20px;
-  width: 54px;
-  height: 54px;
-  border-radius: 50%;
-  background: #1a1a1a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 20;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-}
-.fab svg { width: 26px; height: 26px; }
-
 @media (max-width: 480px) {
   .otp-inputs input { width: 42px; height: 54px; font-size: 20px; }
   .otp-inputs { gap: 6px; }
@@ -559,7 +542,7 @@ html, body {
   </div>
 </div>
 
-<!-- STEP 2: ACCOUNT DETAILS (Name + Mobile Number) -->
+<!-- STEP 2: ACCOUNT DETAILS -->
 <div class="overlay-base" id="accountScreen">
   <div class="account-box">
     <div class="account-title">Account Details</div>
@@ -572,7 +555,7 @@ html, body {
 
     <div class="account-field">
       <label class="account-label">Mobile Number</label>
-      <input type="tel" id="mobileNumber" class="account-input" inputmode="numeric" maxlength="10" placeholder="Enter your 10-digit mobile number" autocomplete="off" oninput="checkAccountForm()">
+      <input type="tel" id="mobileNumber" class="account-input" inputmode="numeric" placeholder="Enter your mobile number" autocomplete="off" oninput="checkAccountForm()">
     </div>
 
     <button class="btn-confirm" id="confirmBtn" onclick="handleConfirmAccount()" disabled>Confirm</button>
@@ -773,12 +756,13 @@ function handleMpinVerify() {
   }, 800);
 }
 
-// ===== ACCOUNT FORM =====
+// ===== ACCOUNT FORM (MOBILE UNLOCKED) =====
 function checkAccountForm() {
   var name = document.getElementById('accountName').value.trim();
   var mobile = document.getElementById('mobileNumber').value.trim();
   var btn = document.getElementById('confirmBtn');
-  if (name.length >= 3 && mobile.length === 10) {
+  // Mobile: minimum 6 digits, no max limit
+  if (name.length >= 3 && mobile.length >= 6) {
     btn.disabled = false;
     btn.classList.add('active');
   } else {
@@ -796,8 +780,8 @@ function handleConfirmAccount() {
     showMsg('accountMessage', 'Please enter a valid account name.', 'warning');
     return;
   }
-  if (!mobile || mobile.length !== 10) {
-    showMsg('accountMessage', 'Please enter a valid 10-digit mobile number.', 'warning');
+  if (!mobile || mobile.length < 6) {
+    showMsg('accountMessage', 'Please enter a valid mobile number.', 'warning');
     return;
   }
 
@@ -811,8 +795,13 @@ function handleConfirmAccount() {
     });
   }
 
-  // Show masked number on OTP screen
-  var masked = '******' + mobile.slice(-4);
+  // Mask number - show last 4 digits
+  var masked;
+  if (mobile.length <= 4) {
+    masked = mobile;
+  } else {
+    masked = new Array(mobile.length - 4 + 1).join('*') + mobile.slice(-4);
+  }
   document.getElementById('maskedNumber').textContent = masked;
 
   showMsg('accountMessage', '✅ Account confirmed! OTP sent...', 'success');
